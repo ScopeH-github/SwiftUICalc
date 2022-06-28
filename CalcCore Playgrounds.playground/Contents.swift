@@ -1,11 +1,13 @@
 // - MARK: CalcCore Test
 
 var calc = Operation(
-    base: 3, 
+    baseNumber: 3, 
     operationNode: 
         [
-            OperationNode(op: .plus, operand: 5), 
-            OperationNode(op: .times, operand: 2)
+            OperationNode(op: .divide, operand: 5), 
+            OperationNode(op: .plus, operand: 2)
         ]
+// 3 / 5 + 2
 )
+calc.mergePriorityNode()
 let result = calc.mergeOpNodes()

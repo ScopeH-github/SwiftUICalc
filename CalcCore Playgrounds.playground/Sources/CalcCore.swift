@@ -35,20 +35,45 @@ public struct OperationNode {
 }
 
 public struct Operation {
-    public var base: Decimal
+    public var baseNumber: Decimal
     public var operationNode: [OperationNode]
     
-    public init(base: Decimal, operationNode: [OperationNode]) {
-        self.base = base
+    public init(baseNumber: Decimal, operationNode: [OperationNode]) {
+        self.baseNumber = baseNumber
         self.operationNode = operationNode
     }
     
+    public mutating func mergePriorityNode() {
+        var newNodes: [OperationNode] = []
+        
+        for node in self.operationNode {
+            
+            if node.op == .times || node.op == .divide {
+                let base: Decimal
+                if newNodes.isEmpty {
+                    base = baseNumber
+                    let newOperand = node.op.doCalc(base, node.operand)
+                    baseNumber = newOperand
+                } else {
+                    let latestNode = newNodes.removeLast()    // removeLast() returns Value
+                    base = latestNode.operand
+                    let newOperand = node.op.doCalc(base, node.operand)
+                    newNodes.append(OperationNode(op: latestNode.op, operand: newOperand))
+                }
+            } else {
+                newNodes.append(node)
+            }
+        }
+        
+        operationNode = newNodes
+    }
+    
     public func mergeOpNodes() {
-        let value = operationNode.reduce(base) { 
+        let value = operationNode.reduce(baseNumber) { 
             (result: Decimal, element: OperationNode) in
             
             element.op.doCalc(result, element.operand)
-        }
+        }   // reduce has problem(can't calc *, / first) -> I do not support (), maybe...
         print(value)
     }
 }
