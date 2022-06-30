@@ -7,7 +7,7 @@
 import SwiftUI
 import Foundation
 
-public enum Operator {
+public enum CalcOperator {
     case plus, minus, times, divide
     
     public var doCalc : (Decimal, Decimal) -> Decimal {
@@ -22,29 +22,47 @@ public enum Operator {
             return ( / )
         }
     }
+    
+    public var calcSymbol: String {
+        switch self {
+        case .plus:
+            return "+"
+        case .minus:
+            return "-"
+        case .times:
+            return "×"
+        case .divide:
+            return "÷"
+        }
+    }
 }
 
-public struct OperationNode {
-    public var op: Operator    // Operator
-    public var operand: Decimal
+public struct CalcOperationNode {
+    var op: CalcOperator    // Operator
+    var operand: Decimal
     
-    public init (op: Operator, operand: Decimal) {
+    public init (op: CalcOperator, operand: Decimal) {
         self.op = op
         self.operand = operand
     }
 }
 
-public struct Operation {
+public struct CalcOperation {
     public var baseNumber: Decimal
-    public var operationNode: [OperationNode]
+    public var operationNode: [CalcOperationNode]
     
-    public init(baseNumber: Decimal, operationNode: [OperationNode]) {
+    public init () {
+        self.baseNumber = 0
+        self.operationNode = [CalcOperationNode]()
+    }
+    
+    public init(baseNumber: Decimal, operationNode: [CalcOperationNode]) {
         self.baseNumber = baseNumber
         self.operationNode = operationNode
     }
     
     public mutating func mergePriorityNode() {
-        var newNodes: [OperationNode] = []
+        var newNodes: [CalcOperationNode] = []
         
         for node in self.operationNode {
             
@@ -58,7 +76,7 @@ public struct Operation {
                     let latestNode = newNodes.removeLast()    // removeLast() returns Value
                     base = latestNode.operand
                     let newOperand = node.op.doCalc(base, node.operand)
-                    newNodes.append(OperationNode(op: latestNode.op, operand: newOperand))
+                    newNodes.append(CalcOperationNode(op: latestNode.op, operand: newOperand))
                 }
             } else {
                 newNodes.append(node)
@@ -68,12 +86,24 @@ public struct Operation {
         operationNode = newNodes
     }
     
-    public func mergeOpNodes() {
+    public func mergeOpNodes() -> Decimal {
         let value = operationNode.reduce(baseNumber) { 
-            (result: Decimal, element: OperationNode) in
+            (result: Decimal, element: CalcOperationNode) in
             
             element.op.doCalc(result, element.operand)
-        }   // reduce has problem(can't calc *, / first) -> I do not support (), maybe...
-        print(value)
+        }
+        return value
+    }
+    
+    public mutating func calcResult() -> Decimal {
+        mergePriorityNode()
+        return mergeOpNodes()
+    }
+    
+    public func operationString() -> String {
+        return self.operationNode.reduce("\(baseNumber)") {
+            (result: String, element: CalcOperationNode) in
+            result + " " + element.op.calcSymbol + " " + "\(element.operand)"
+        }
     }
 }
