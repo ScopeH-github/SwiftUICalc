@@ -7,10 +7,22 @@ var currentOperation: CalcOperation = CalcOperation()
 public func calcButtonAction(key: CalcButtons, _ currentNumber: inout String, _ operationText: inout String) {
     switch key {
     case .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
+        if currentNum == 0 && !currentNumber.isEmpty {
+            currentNumber.removeAll()
+            currentOperator = nil
+            currentOperation = CalcOperation()
+        }
         currentNumber += key.rawValue
+        currentNum = numberToDecimal(&currentNumber)
     case .zero, .doubleZero:
         if !currentNumber.isEmpty {
+            if currentNum == 0 {
+                currentNumber.removeAll()
+                currentOperator = nil
+                currentOperation = CalcOperation()
+            }
             currentNumber += key.rawValue
+            currentNum = numberToDecimal(&currentNumber)
         }
     case .floatPoint:
         if currentNumber.isEmpty {
@@ -44,10 +56,17 @@ public func calcButtonAction(key: CalcButtons, _ currentNumber: inout String, _ 
     case .opEqual:
         currentNum = numberToDecimal(&currentNumber)
         currentNumber = showResult(currentNum, &operationText)
-        
+        currentNum = 0
     case .ac:
-        currentNumber.removeAll()
-        operationText.removeAll()
+        if currentNum != 0 {
+            currentNum = 0
+            currentNumber.removeAll()
+        } else {
+            currentOperator = nil
+            currentOperation = CalcOperation()
+            operationText.removeAll()
+            currentNumber.removeAll()
+        }
     case .changeSign:
         if !currentNumber.isEmpty {
             currentNum = numberToDecimal(&currentNumber)
@@ -55,7 +74,9 @@ public func calcButtonAction(key: CalcButtons, _ currentNumber: inout String, _ 
             currentNumber = "\(currentNum)"
         }
     case .percent:
-        print(key.rawValue)
+        currentNum = numberToDecimal(&currentNumber)
+        currentNum /= 100
+        currentNumber = "\(currentNum)"
     }
 }
 
@@ -86,4 +107,4 @@ func showResult (_ currentNum: Decimal, _ operationText: inout String) -> String
     addOperationNode(currentNum, &operationText)
     operationText += " = "
     return "\(currentOperation.calcResult())"
-} 
+}
