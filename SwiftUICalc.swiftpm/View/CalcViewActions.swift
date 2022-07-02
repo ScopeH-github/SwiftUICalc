@@ -56,6 +56,8 @@ public func calcButtonAction(key: CalcButtons, _ currentNumber: inout String, _ 
     case .opEqual:
         currentNum = numberToDecimal(&currentNumber)
         currentNumber = showResult(currentNum, &operationText)
+        currentOperator = nil
+        currentOperation = CalcOperation(baseNumber: currentNum, operationNode: [CalcOperationNode]())
         currentNum = 0
     case .ac:
         if currentNum != 0 {
