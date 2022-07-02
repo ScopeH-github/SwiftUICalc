@@ -7,7 +7,7 @@ var currentOperation: CalcOperation = CalcOperation()
 public func calcButtonAction(key: CalcButtons, _ currentNumber: inout String, _ operationText: inout String) {
     switch key {
     case .one, .two, .three, .four, .five, .six, .seven, .eight, .nine:
-        if currentNum == 0 && !currentNumber.isEmpty {
+        if currentNum == 0 && !currentNumber.isEmpty && currentNumber != "0." {
             currentNumber.removeAll()
             currentOperator = nil
             currentOperation = CalcOperation()
